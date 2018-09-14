@@ -1,0 +1,50 @@
+version: '3'
+services:
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:ubuntu-trunk
+    container_name: zabbix-server
+    environment:
+      TZ: "Asia/Tokyo"
+      DB_SERVER_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: mypass
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix
+      MYSQL_DATABASE: zabbix
+    expose:
+      - "10051"
+    restart: unless-stopped
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-mysql:ubuntu-trunk
+    container_name: zabbix-web
+    environment:
+      TZ: "Asia/Tokyo"
+      DB_SERVER_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: mypass
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix
+      MYSQL_DATABASE: zabbix
+    ports:
+      - "80:80"
+    restart: unless-stopped
+  zabbix-agent:
+    image: zabbix/zabbix-agent:ubuntu-trunk
+    container_name: zabbix-agent
+    environment:
+      TZ: "Asia/Tokyo"
+    restart: unless-stopped
+  mariadb:
+    image: yoshinorin/docker-mariadb:10.3.7
+    container_name: mariadb
+    environment:
+      TZ: "Asia/Tokyo"
+      MYSQL_ROOT_PASSWORD: mypass
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix
+      MYSQL_DATABASE: zabbix
+    volumes:
+      - ./volumes/mariadb/data/:/var/lib/mysql
+      - ./volumes/mariadb/config/:/etc/mysql/
+    hostname: mariadb
+    expose:
+      - "3306"
+    restart: unless-stopped
